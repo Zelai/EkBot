@@ -20,6 +20,8 @@ class ZelaiBot(interface.Bot):
 
 		distanciaMax = max(len(self.map),len(self.map[1])) + 1
 		
+		mapa = str(self.map)
+		self.log(mapa)
 		mapaAux = self.map[:]	
 		
 
