@@ -18,12 +18,28 @@ class ZelaiBot(interface.Bot):
 		#  player_num, player_count, position, map, lighthouses
 		interface.Bot.__init__(self,init_state)	
 
-		distanciaMax = max(len(self.map),len(self.map[1])) + 1
-		
-		mapa = str(self.map)
-		self.log(mapa)
+		# La distancia Maxima es la máxima entre el número de casillas
+		# en x y el número de casillas en y (se puede mover en diagonal)
+		self.xMax = len(self.map[1]);
+		self.yMax = len(self.map);
+		distanciaMax = max(self.xMax,self.yMax) + 1
+	
+		self.mapa = str(self.map)
+		self.log(self.mapa)
 		mapaAux = self.map[:]	
 		
+		self.log("lighthouses:\n" + str(self.lighthouses));
+		self.log("len(lighthouses)=%d\n" %  (len(self.lighthouses)) );
+		
+		self.log("xMax=" + str(self.xMax) + " yMax="+ str(self.yMax) + "\n")
+		# posiciones validas map[0][0] - map[17,20]
+		# modo de acceso map[y][x]
+
+		for faro in range(len(self.lighthouses)):
+			self.distancias[faro] = copy.deepcopy(self.map[:])	
+		self.log("len(lighthouses)="+ str(len(self.lighthouses)) + "\n" +str(self.distancias[0]))
+		### Pendiente: convertir el mapa de 0 y 1 a -1 y distanciaMax
+#		[self.distancias[faro][y][x] = 
 
 	def play(self, state):
 		"""Jugar: llamado cada turno.
