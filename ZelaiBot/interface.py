@@ -8,7 +8,13 @@ import sys, json
 # Los robots definidos deben heredar de esta clase.
 # ==============================================================================
 
+
 class Bot(object):
+    """
+    .. module::interface
+        :platform: Unix, Windows
+        :synopsis: Modulo heredado
+    """
     """Bot base. Este bot no hace nada (pasa todos los turnos)."""
     NAME = "NullBot"
 
