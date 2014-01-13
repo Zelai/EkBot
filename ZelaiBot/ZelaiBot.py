@@ -5,6 +5,11 @@ import random, sys
 import interface
 import copy # para copiar listas
 
+
+def calculaDistancia(faro,mapa):
+	sys.stderr.write('XXXXXXX calculadistancia')	
+	
+@trace
 def calculaDistancias(lighthouses, mapa):
 	distancia={}
 	xMax = len(mapa[1]);
@@ -18,6 +23,13 @@ def calculaDistancias(lighthouses, mapa):
 		distancia[faro] = [[ -1 if mapa[y][x]==0 else superior for x in xrange(xMax)] for y in xrange(yMax)]
 	return distancia
 
+	for faro in range(len(lighthouses)):
+		distancia[faro] = calculaDistancia(lighthouses[faro],distancia[faro])
+	#	x=0; y=1; d=2
+	#	p = [lighthouses[faro].append(0)]:
+	#	if distancia[faro][p[y]][p[x]] > p[d]:
+	#		distancia[faro][p[y]][p[x]] = p[d]
+			
 	### Ahora falta procesar las distancias
 
 class ZelaiBot(interface.Bot):

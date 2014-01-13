@@ -3,6 +3,8 @@ Clase de herencia
 
 Aqui alguna descripcion
 
-.. automodule:: ZelaiBot.interface
-	:members:
-	:show-inheritance
+
+A ver si va el codigo:
+.. autoclass:: Zelaibot.Bot.didi
+
+.. sourcecode:: python
