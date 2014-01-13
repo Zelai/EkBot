@@ -5,12 +5,24 @@ import random, sys
 import interface
 import copy # para copiar listas
 
+def calculaDistancias(lighthouses, mapa):
+	distancia={}
+	xMax = len(mapa[1]);
+	yMax = len(mapa);
+	superior = xMax + yMax
+	faros = len(lighthouses)
+
+	# Inicializo distancias, superior si es navegable
+	# -1 si no es navegable
+	for faro in range(len(lighthouses)):
+		distancia[faro] = [[ -1 if mapa[y][x]==0 else superior for x in xrange(xMax)] for y in xrange(yMax)]
+	return distancia
+
+	### Ahora falta procesar las distancias
+
 class ZelaiBot(interface.Bot):
 	"""Bot ZelaiBot 0.1"""
 	NAME = "ZelaiBot 0.1"""
-
-
-	distancias = {}
 
 	def __init__(self, init_state):
 		"""Inicializar el bot: llamado al comienzo del juego."""
@@ -35,11 +47,14 @@ class ZelaiBot(interface.Bot):
 		# posiciones validas map[0][0] - map[17,20]
 		# modo de acceso map[y][x]
 
-		for faro in range(len(self.lighthouses)):
-			self.distancias[faro] = copy.deepcopy(self.map[:])	
+		# Inicio la matriz a -1
+		#for faro in range(len(self.lighthouses)):
+			#self.distancias[faro] = copy.deepcopy(self.map[:])	
+			#self.distancias[faro]=[x[:] for x in [[-1] * self.xMax ] * self.yMax]
+			#self.distancias[faro]= calculaDistancias(self.lighthouses[faro, self.map)
+		self.distancias = calculaDistancias(self.lighthouses,self.map)
 		self.log("len(lighthouses)="+ str(len(self.lighthouses)) + "\n" +str(self.distancias[0]))
-		### Pendiente: convertir el mapa de 0 y 1 a -1 y distanciaMax
-#		[self.distancias[faro][y][x] = 
+
 
 	def play(self, state):
 		"""Jugar: llamado cada turno.
