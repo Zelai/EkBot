@@ -5,23 +5,42 @@ import random, sys
 import interface
 import copy # para copiar listas
 
+def logFun(message, *args):
+	"""Mostrar mensaje de registro por stderr"""
+	print >>sys.stderr, "[%s] %s" % ("Zelaibot", (message % args))
+
 
 def calculaDistancia(faro,mapa):
-	sys.stderr.write('XXXXXXX calculadistancia')	
-	
-@trace
+	logFun('XXXXXXX calculadistancia\n')	
+	logFun(str(faro))
+	logFun(str(mapa))
+
+	# Faro pasa de tupla a lista, y le añado distancia 0
+	faro = list(faro)
+	faro.append(0)
+	explorar=[faro]
+	while explorar:
+		punto = explorar.pop(0)
+		### Aquí revisar el indice 0 y 1 o del reves
+		if mapa[punto[0]][punto[1]] > punto[2]:
+			mapa[punto[0]][punto[1]]= punto[2]
+			a=[-1,0,1]
+			for x in a:
+				for y in a:
+					explorar.append([punto[0]+y,punto[1]+x,punto[2]+1])
+	return mapa
+		
 def calculaDistancias(lighthouses, mapa):
 	distancia={}
 	xMax = len(mapa[1]);
 	yMax = len(mapa);
 	superior = xMax + yMax
 	faros = len(lighthouses)
-
+	logFun("XXXXIIIIXXX")
 	# Inicializo distancias, superior si es navegable
 	# -1 si no es navegable
 	for faro in range(len(lighthouses)):
 		distancia[faro] = [[ -1 if mapa[y][x]==0 else superior for x in xrange(xMax)] for y in xrange(yMax)]
-	return distancia
 
 	for faro in range(len(lighthouses)):
 		distancia[faro] = calculaDistancia(lighthouses[faro],distancia[faro])
@@ -31,6 +50,7 @@ def calculaDistancias(lighthouses, mapa):
 	#		distancia[faro][p[y]][p[x]] = p[d]
 			
 	### Ahora falta procesar las distancias
+	return distancia
 
 class ZelaiBot(interface.Bot):
 	"""Bot ZelaiBot 0.1"""
