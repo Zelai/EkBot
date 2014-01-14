@@ -11,7 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   interface.rst
 
+.. automodule:: interface
+
+.. autoclass:: Bot
+    :members:
 
 Indices and tables
 ==================
@@ -19,4 +24,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
