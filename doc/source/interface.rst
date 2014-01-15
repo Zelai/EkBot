@@ -1,10 +1,14 @@
-Clase de herencia
+interface.py
 ----
+.. module:: interface
 
 Aqui alguna descripcion
 
+:synopsis:
 
 A ver si va el codigo:
-.. autoclass:: Zelaibot.Bot.didi
 
-.. sourcecode:: python
+.. autoclass:: Bot
+	:members:
+
+

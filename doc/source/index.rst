@@ -12,10 +12,14 @@ Contents:
    :maxdepth: 2
 
    interface.rst
+   zelaibot.rst
 
-.. automodule:: interface
 
-.. autoclass:: Bot
+.. 
+  automodule:: interface
+
+.. 
+  autoclass:: Bot
     :members:
 
 Indices and tables

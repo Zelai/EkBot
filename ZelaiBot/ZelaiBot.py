@@ -5,6 +5,7 @@ import random, sys
 import interface
 import copy # para copiar listas
 
+
 def logFun(message, *args):
 	"""Mostrar mensaje de registro por stderr"""
 	print >>sys.stderr, "[%s] %s" % ("Zelaibot", (message % args))
@@ -53,6 +54,11 @@ def calculaDistancias(lighthouses, mapa):
 	return distancia
 
 class ZelaiBot(interface.Bot):
+	"""
+	.. module::ZelaiBot
+		:platform: Unix,Window
+
+	"""
 	"""Bot ZelaiBot 0.1"""
 	NAME = "ZelaiBot 0.1"""
 
@@ -90,7 +96,9 @@ class ZelaiBot(interface.Bot):
 
 	def play(self, state):
 		"""Jugar: llamado cada turno.
-		Debe dev olver una accion (jugada)."""
+		Debe devolver una accion (jugada).
+		Este es el método que hay que sobreescribir
+		de interface.py"""
 		self.log("hola " + str(self.player_num)) 
 		return self.move(*(-1,0))	
 
