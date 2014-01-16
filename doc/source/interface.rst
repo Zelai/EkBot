@@ -11,4 +11,5 @@ A ver si va el codigo:
 .. autoclass:: Bot
 	:members:
 
+	.. automethod:: __init__
 

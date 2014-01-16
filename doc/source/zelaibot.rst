@@ -4,13 +4,13 @@ ZelaiBot.py
 
 Aqui alguna descripcion
 
-:synopsis:
 
-A ver si va el codigo:
+.. autofunction:: calculaDistancia 
+
+.. autofunction:: calculaDistancias 
 
 .. autoclass:: ZelaiBot
 	:members:
 
-..
- autofun:: zelaibot
+	.. automethod:: __init__
 
