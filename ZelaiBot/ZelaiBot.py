@@ -39,7 +39,7 @@ def calculaDistancia(faro,mapa):
                     explorar.append([punto[0]+y,punto[1]+x,punto[2]+1])
 #   for linea in mapa:
 #       logFun("calculaDistancia",str(linea))
-#   return mapa
+    return mapa
         
 def calculaDistancias(lighthouses, mapa):
     """
@@ -60,14 +60,13 @@ def calculaDistancias(lighthouses, mapa):
 
     for faro in range(len(lighthouses)):
         distancia[faro] = calculaDistancia(lighthouses[faro],distancia[faro])
+        logFun("d","Distancia["+str(faro)+"] + \n" + str(distancia[faro]))
 
     return distancia
 
 class ZelaiBot(interface.Bot):
     """
     .. module::ZelaiBot
-        :platform: Unix,Window
-
     """
     """Bot ZelaiBot 0.1"""
     NAME = "ZelaiBot 0.1"""
@@ -86,12 +85,8 @@ class ZelaiBot(interface.Bot):
         #  player_num, player_count, position, map, lighthouses
         interface.Bot.__init__(self,init_state) 
 
-        # La distancia Maxima es la máxima entre el número de casillas
-        # en x y el número de casillas en y (se puede mover en diagonal)
-    
         #self.log(str(self.map))
-        
-        #self.log("lighthouses:\n" + str(self.lighthouses));
+        self.log("lighthouses:\n" + str(self.lighthouses));
         #self.log("len(lighthouses)=%d\n" %  (len(self.lighthouses)) );
         
         # posiciones validas map[0][0] - map[17,20]
@@ -105,7 +100,38 @@ class ZelaiBot(interface.Bot):
 
     def buscafaro(self):
         self.log("buscafaro "+str(self.position))
+        x, y = self.position
+        superior = len(self.map) + len(self.map[1])
+        self.log("superior=" + str(superior))
+        distancia_minimo = superior
+        minimo = -1
+        for faro in xrange(len(self.distancias)):
+            if self.distancias[faro][y][x] < distancia_minimo:
+                distancia_minimo =self.distancias[faro][y][x]
+                minimo = faro
+            self.log("Bucle buscafaro: x= " + str(x) + " y= "+str(y) + " faro="+ str(faro) + " d= " + str(self.distancias[faro][y][x]) + " min=" + str(minimo) + " dmin=" + str(distancia_minimo)) 
+        return faro    
 
+    def reduce(self):
+        self.log("XXXXX reduce XXXXX")
+        x, y = self.position
+        self.log("posX:" + str(x) + " posY:" + str(y) + " d=("+str(self.lighthouses[self.objetivo][0]) + "," + str(self.lighthouses[self.objetivo][1]) +")")
+        tDist = self.distancias[self.objetivo]
+        distanciaMin = tDist[y][x] 
+        xMin =0
+        yMin = 0
+        for xAux in [-1,0,1]:
+            for yAux in[-1,0,1]:
+                self.log("tDist[y + yAux][x+ xAux] = "+ str(tDist[y + yAux][x+ xAux]))
+                if tDist[y + yAux][x+ xAux] < distanciaMin and tDist[y + yAux][x+xAux] <> -1:
+                    self.log("tDist[y + yAux][x+ xAux] = "+ str(tDist[y + yAux][x+ xAux]) + "("+str(yAux)+ ","+str(xAux) + ")")
+                    xMin = xAux
+                    yMin = yAux
+                    distanciaMin =tDist[y + yAux][x+ xAux]
+        self.log("voy a llegar " + str(xMin) + " " + str(yMin))
+        return (xMin,yMin)
+
+                
     def play(self, state):
         """Jugar: llamado cada turno.
         Debe devolver una accion (jugada).
@@ -114,7 +140,12 @@ class ZelaiBot(interface.Bot):
         self.position = state['position']
 
         if self.estado == 0:
-            self.buscafaro()
+            self.objetivo = self.buscafaro()
+            self.estado = 1
+        if self.estado == 1:
+            xDest,yDest = self.reduce()
+            return self.move(*(xDest,yDest))
+            
         return self.move(*(-1,0))   
 
 if __name__ == "__main__":
