@@ -110,12 +110,12 @@ class ZelaiBot(interface.Bot):
                 distancia_minimo =self.distancias[faro][y][x]
                 minimo = faro
             self.log("Bucle buscafaro: x= " + str(x) + " y= "+str(y) + " faro="+ str(faro) + " d= " + str(self.distancias[faro][y][x]) + " min=" + str(minimo) + " dmin=" + str(distancia_minimo)) 
-        return faro    
+        return minimo 
 
     def reduce(self):
         self.log("XXXXX reduce XXXXX")
         x, y = self.position
-        self.log("posX:" + str(x) + " posY:" + str(y) + " d=("+str(self.lighthouses[self.objetivo][0]) + "," + str(self.lighthouses[self.objetivo][1]) +")")
+        self.log("posX:" + str(x) + " posY:" + str(y) + " objetivo=" + str(self.objetivo) + " d=("+str(self.lighthouses[self.objetivo][0]) + "," + str(self.lighthouses[self.objetivo][1]) +")")
         tDist = self.distancias[self.objetivo]
         distanciaMin = tDist[y][x] 
         xMin =0
