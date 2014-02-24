@@ -5,10 +5,6 @@ ZelaiBot.py
 Aqui alguna descripcion
 
 
-.. autofunction:: calculaDistancia 
-
-.. autofunction:: calculaDistancias 
-
 .. autoclass:: ZelaiBot
 	:members:
 

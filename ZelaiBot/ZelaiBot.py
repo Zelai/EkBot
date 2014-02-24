@@ -11,62 +11,7 @@ def logFun(ident, message, *args):
     print >>sys.stderr, "[%s] %s" % (ident, (message % args))
 
 
-def calculaDistancia(faro,mapa):
-    """
-    Esta función defuelve las distancias de un mapa
-    a uno de los faros.
-
-
-    :param tuple faro: tupla que contiene la posición del faro (x,y)
-    :param list mapa: Lista 2-dimensional que contiene un mapa con las posiciones navegables y las que no.
-    :return:  Lista 2-dimensional del  Mapa actualizado con las distancias al faro
-    :return type: list
-
-    """
-
-    # Faro pasa de tupla a lista, y le añado distancia 0
-    # (x,y) => (x,y,d) donde d es la distancia al faro.
-    faro = list(faro)
-    faro.append(0)
-    explorar=[faro]
-    while explorar:
-        punto = explorar.pop(0)
-        ### Aquí revisar el indice 0 y 1 o del reves, aunque tampoco importa
-        if mapa[punto[1]][punto[0]] > punto[2]:
-            mapa[punto[1]][punto[0]]= punto[2]
-            for x in [-1,0,1]:
-                for y in [-1,0,1]:
-                    explorar.append([punto[0]+y,punto[1]+x,punto[2]+1])
-#   for linea in mapa:
-#       logFun("calculaDistancia",str(linea))
-    return mapa
-        
-def calculaDistancias(lighthouses, mapa):
-    """
-    Esta función devuelve un diccionario con la distancia
-    a cada uno de los faros
-    """
-    d=0
-    if d>0: logFun("Entro en calculaDistancias","")
-    distancia={}
-    xMax = len(mapa[1]);
-    yMax = len(mapa);
-    superior = xMax + yMax # Cualquier numero que sea superior a la distancia maxima
-    faros = len(lighthouses)
-    """ Inicializo matriz de distancias para cada faro, 
-     si es navegable: "superior"
-     si no es navegable: -1 
-    """
-    for faro in range(len(lighthouses)):
-        distancia[faro] = [[ -1 if mapa[y][x]==0 else superior for x in xrange(xMax)] for y in xrange(yMax)]
-
-    for faro in range(len(lighthouses)):
-        distancia[faro] = calculaDistancia(lighthouses[faro],distancia[faro])
-        if d>1: logFun("d","Distancia["+str(faro)+"] + \n" + str(distancia[faro]))
-
-    if d>0: logFun("Salgo de calculaDistancias","")
-    return distancia
-
+       
 class ZelaiBot(interface.Bot):
     """
     .. module::ZelaiBot
@@ -84,6 +29,8 @@ class ZelaiBot(interface.Bot):
 |            self.map
 |            self.lighthouses
 |        Llama a calcular las distancias
+|            self.distancias [faro][y][x]
+|               una matriz por cada faro con su distancia al punto [y][x].
 
         :meth: interface.Bot.__init__
         """
@@ -99,13 +46,70 @@ class ZelaiBot(interface.Bot):
         
         # posiciones validas map[0][0] - map[17,20]
         # modo de acceso map[y][x]
-        self.distancias = calculaDistancias(self.lighthouses,self.map) 
+        self.distancias = self.calculaDistancias(self.lighthouses,self.map) 
         #self.log("len(lighthouses)="+ str(len(self.lighthouses)) + "\n" +str(self.distancias[0]))
         
         self.estado = 0
         self.destino = 0
         
         if d>0: self.log("Salgo en __init__")
+
+    def calculaDistancia(self, faro,mapa):
+        """
+        Esta función defuelve las distancias de un mapa
+        a uno de los faros.
+
+
+        :param tuple faro: tupla que contiene la posición del faro (x,y)
+        :param list mapa: Lista 2-dimensional que contiene un mapa con las posiciones navegables y las que no.
+        :return:  Lista 2-dimensional del  Mapa actualizado con las distancias al faro
+        :return type: list
+
+        """
+
+        # Faro pasa de tupla a lista, y le añado distancia 0
+        # (x,y) => (x,y,d) donde d es la distancia al faro.
+        faro = list(faro)
+        faro.append(0)
+        explorar=[faro]
+        while explorar:
+            punto = explorar.pop(0)
+            ### Aquí revisar el indice 0 y 1 o del reves, aunque tampoco importa
+            if mapa[punto[1]][punto[0]] > punto[2]:
+                mapa[punto[1]][punto[0]]= punto[2]
+                for x in [-1,0,1]:
+                    for y in [-1,0,1]:
+                        explorar.append([punto[0]+y,punto[1]+x,punto[2]+1])
+    #   for linea in mapa:
+    #       logFun("calculaDistancia",str(linea))
+        return mapa
+     
+    def calculaDistancias(self,lighthouses, mapa):
+        """
+        Esta función devuelve un diccionario con la distancia
+        a cada uno de los faros
+        """
+        d=0
+        if d>0: logFun("Entro en calculaDistancias","")
+        distancia={}
+        xMax = len(mapa[1]);
+        yMax = len(mapa);
+        superior = xMax + yMax # Cualquier numero que sea superior a la distancia maxima
+        faros = len(lighthouses)
+        """ Inicializo matriz de distancias para cada faro, 
+         si es navegable: "superior"
+         si no es navegable: -1 
+        """
+        for faro in range(len(lighthouses)):
+            distancia[faro] = [[ -1 if mapa[y][x]==0 else superior for x in xrange(xMax)] for y in xrange(yMax)]
+
+        for faro in range(len(lighthouses)):
+            distancia[faro] = self.calculaDistancia(lighthouses[faro],distancia[faro])
+            if d>1: logFun("d","Distancia["+str(faro)+"] + \n" + str(distancia[faro]))
+
+        if d>0: logFun("Salgo de calculaDistancias","")
+        return distancia
+
 
     def buscafaro(self):
         """
@@ -114,14 +118,17 @@ class ZelaiBot(interface.Bot):
         """
         d=0
         if d>0: self.log("Entro en buscafaro")
-        if d>1:self.log("buscafaro "+str(self.position))
-        x, y = self.position
+        if d>1:self.log("buscafaro "+str(self.state['position']))
+        x, y = self.state['position']
         superior = len(self.map) + len(self.map[1])
         if d>1: self.log("superior=" + str(superior))
         distancia_minimo = superior
         minimo = -1
         for faro in xrange(len(self.distancias)):
-            if self.distancias[faro][y][x] < distancia_minimo:
+            self.log("XXXX player_num" + str(self.player_num))
+            # XXXXXXXXXXXX Estoy aquí, la siguiente linea no pilla el owner, es para cuando funcione poner en el if de abajo y comparar con el owner
+            self.log("XXXX faro.owner" + str(self.state['lighthouses'][faro]["owner"])) #[faro]['owner']))
+            if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] <> self.player_num:
                 distancia_minimo =self.distancias[faro][y][x]
                 minimo = faro
             if d>2: self.log("Bucle buscafaro: x= " + str(x) + " y= "+str(y) + " faro="+ str(faro) + " d= " + str(self.distancias[faro][y][x]) + " min=" + str(minimo) + " dmin=" + str(distancia_minimo)) 
@@ -135,7 +142,7 @@ class ZelaiBot(interface.Bot):
         """
         d=0
         if d>0: self.log("entro en reduce")
-        x, y = self.position
+        x, y = self.state['position']
         if d>1: self.log("posX:" + str(x) + " posY:" + str(y) + " objetivo=" + str(self.objetivo) + " d=("+str(self.lighthouses[self.objetivo][0]) + "," + str(self.lighthouses[self.objetivo][1]) +")")
         tDist = self.distancias[self.objetivo]
         distanciaMin = tDist[y][x] 
@@ -159,7 +166,6 @@ class ZelaiBot(interface.Bot):
         Debe devolver una accion (jugada).
         Este es el método que hay que sobreescribir
         de interface.py"""
-        self.position = state['position']
         self.state = state
         cx, cy = state['position']
         lighthouses = dict((tuple(lh["position"]), lh)
