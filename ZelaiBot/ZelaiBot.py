@@ -125,10 +125,11 @@ class ZelaiBot(interface.Bot):
         distancia_minimo = superior
         minimo = -1
         for faro in xrange(len(self.distancias)):
-            self.log("XXXX player_num" + str(self.player_num))
+            if d>2: self.log("XXXX player_num" + str(self.player_num))
             # XXXXXXXXXXXX Estoy aquí, la siguiente linea no pilla el owner, es para cuando funcione poner en el if de abajo y comparar con el owner
-            self.log("XXXX faro.owner" + str(self.state['lighthouses'][faro]["owner"])) #[faro]['owner']))
-            if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] <> self.player_num:
+            if d>2: self.log("XXXX faro.owner" + str(type(self.state['lighthouses']))) #[faro]['owner']))
+            if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] == None:
+            #if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] <> self.player_num:
                 distancia_minimo =self.distancias[faro][y][x]
                 minimo = faro
             if d>2: self.log("Bucle buscafaro: x= " + str(x) + " y= "+str(y) + " faro="+ str(faro) + " d= " + str(self.distancias[faro][y][x]) + " min=" + str(minimo) + " dmin=" + str(distancia_minimo)) 
@@ -144,6 +145,8 @@ class ZelaiBot(interface.Bot):
         if d>0: self.log("entro en reduce")
         x, y = self.state['position']
         if d>1: self.log("posX:" + str(x) + " posY:" + str(y) + " objetivo=" + str(self.objetivo) + " d=("+str(self.lighthouses[self.objetivo][0]) + "," + str(self.lighthouses[self.objetivo][1]) +")")
+        if self.objetivo == -1:
+            return(0,0)
         tDist = self.distancias[self.objetivo]
         distanciaMin = tDist[y][x] 
         xMin =0
@@ -166,10 +169,15 @@ class ZelaiBot(interface.Bot):
         Debe devolver una accion (jugada).
         Este es el método que hay que sobreescribir
         de interface.py"""
+        d=0
+
         self.state = state
         cx, cy = state['position']
-        lighthouses = dict((tuple(lh["position"]), lh)
+        self.lighthouses = dict((tuple(lh["position"]), lh)
                             for lh in state["lighthouses"])
+        if d>1: self.log("self.lighthouses=" + str(self.lighthouses))
+        if d>1:self.log("faro [0]:" + str(self.lighthouses.values()[0]["owner"]))
+        if d>1:self.log("faro [1]:" + str(self.lighthouses.values()[1]))
 
         if self.estado == 0:
             self.objetivo = self.buscafaro()
@@ -177,9 +185,14 @@ class ZelaiBot(interface.Bot):
         if self.estado == 1:
             xDest,yDest = self.reduce()
             if xDest == 0 and yDest ==0:
-                self.log("estoy en destino XXXX")
-                if lighthouses[(cx,cy)]["owner"] <> self.player_num:
+                if d>1: self.log("estoy en destino XXXX")
+#                if self.lighthouses[(cx,cy)]["owner"] <> self.player_num:
+                if self.lighthouses[(cx,cy)]["owner"] == None:
+                    if d>1: self.log("self.attack(state[energy])")
                     return self.attack(state["energy"])
+                else:
+                    self.objetivo = self.buscafaro()
+                    xDest,yDest = self.reduce()
             return self.move(*(xDest,yDest))
             
         return self.move(*(-1,0))   
