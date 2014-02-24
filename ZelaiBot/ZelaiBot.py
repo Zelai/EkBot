@@ -4,6 +4,7 @@
 import random, sys
 import interface
 import copy # para copiar listas
+import itertools
 
 
 def logFun(ident, message, *args):
@@ -124,12 +125,14 @@ class ZelaiBot(interface.Bot):
         if d>1: self.log("superior=" + str(superior))
         distancia_minimo = superior
         minimo = -1
+        if self.state["energy"] == 0:
+            return random(len(self.lighthouses))
         for faro in xrange(len(self.distancias)):
             if d>2: self.log("XXXX player_num" + str(self.player_num))
             # XXXXXXXXXXXX Estoy aquí, la siguiente linea no pilla el owner, es para cuando funcione poner en el if de abajo y comparar con el owner
             if d>2: self.log("XXXX faro.owner" + str(type(self.state['lighthouses']))) #[faro]['owner']))
-            if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] == None:
-            #if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] <> self.player_num:
+            #if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] == None:
+            if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] <> self.player_num and self.state['lighthouses'][faro]["energy"] < self.state["energy"] :
                 distancia_minimo =self.distancias[faro][y][x]
                 minimo = faro
             if d>2: self.log("Bucle buscafaro: x= " + str(x) + " y= "+str(y) + " faro="+ str(faro) + " d= " + str(self.distancias[faro][y][x]) + " min=" + str(minimo) + " dmin=" + str(distancia_minimo)) 
@@ -151,14 +154,13 @@ class ZelaiBot(interface.Bot):
         distanciaMin = tDist[y][x] 
         xMin =0
         yMin = 0
-        for xAux in [-1,0,1]:
-            for yAux in[-1,0,1]:
-                if d>2: self.log("tDist[y + yAux][x+ xAux] = "+ str(tDist[y + yAux][x+ xAux]))
-                if tDist[y + yAux][x+ xAux] < distanciaMin and tDist[y + yAux][x+xAux] <> -1:
-                    if d>2: self.log("tDist[y + yAux][x+ xAux] = "+ str(tDist[y + yAux][x+ xAux]) + "("+str(yAux)+ ","+str(xAux) + ")")
-                    xMin = xAux
-                    yMin = yAux
-                    distanciaMin =tDist[y + yAux][x+ xAux]
+        for xAux, yAux in itertools.product([-1,0,1],[-1,0,1]):
+            if d>2: self.log("tDist[y + yAux][x+ xAux] = "+ str(tDist[y + yAux][x+ xAux]))
+            if tDist[y + yAux][x+ xAux] < distanciaMin and tDist[y + yAux][x+xAux] <> -1:
+                if d>2: self.log("tDist[y + yAux][x+ xAux] = "+ str(tDist[y + yAux][x+ xAux]) + "("+str(yAux)+ ","+str(xAux) + ")")
+                xMin = xAux
+                yMin = yAux
+                distanciaMin =tDist[y + yAux][x+ xAux]
         if d>0: self.log("Salgo en reduce")
         if d>1: self.log("devuelvo (xMin=" + str(xMin) + ", yMin=" + str(yMin) + ")")
         return (xMin,yMin)
@@ -187,7 +189,7 @@ class ZelaiBot(interface.Bot):
             if xDest == 0 and yDest ==0:
                 if d>1: self.log("estoy en destino XXXX")
 #                if self.lighthouses[(cx,cy)]["owner"] <> self.player_num:
-                if self.lighthouses[(cx,cy)]["owner"] == None:
+                if self.lighthouses[(cx,cy)]["owner"] == None and state["energy"] <> 0:
                     if d>1: self.log("self.attack(state[energy])")
                     return self.attack(state["energy"])
                 else:
