@@ -10,8 +10,6 @@ import itertools
 def logFun(ident, message, *args):
     """Mostrar mensaje de registro por stderr"""
     print >>sys.stderr, "[%s] %s" % (ident, (message % args))
-
-
        
 class ZelaiBot(interface.Bot):
     """
@@ -35,25 +33,25 @@ class ZelaiBot(interface.Bot):
 
         :meth: interface.Bot.__init__
         """
-        # llamada a super para inicializar las variables (self.)
-        #  player_num, player_count, position, map, lighthouses
         d=0
         if d>0: self.log("Entro en __init__")
+
+        # llamada a super para inicializar las variables (self.)
+        #  player_num, player_count, position, map, lighthouses
+ 
         interface.Bot.__init__(self,init_state) 
 
-        #self.log(str(self.map))
+        if d>1: self.log(str(self.map))
         if d>1: self.log("lighthouses:\n" + str(self.lighthouses));
-        #self.log("len(lighthouses)=%d\n" %  (len(self.lighthouses)) );
         
         # posiciones validas map[0][0] - map[17,20]
         # modo de acceso map[y][x]
         self.distancias = self.calculaDistancias(self.lighthouses,self.map) 
-        #self.log("len(lighthouses)="+ str(len(self.lighthouses)) + "\n" +str(self.distancias[0]))
         
         self.estado = 0
         self.destino = 0
         
-        if d>0: self.log("Salgo en __init__")
+        if d>0: self.log("Salgo de__init__")
 
     def calculaDistancia(self, faro,mapa):
         """
@@ -81,8 +79,6 @@ class ZelaiBot(interface.Bot):
                 for x in [-1,0,1]:
                     for y in [-1,0,1]:
                         explorar.append([punto[0]+y,punto[1]+x,punto[2]+1])
-    #   for linea in mapa:
-    #       logFun("calculaDistancia",str(linea))
         return mapa
      
     def calculaDistancias(self,lighthouses, mapa):
@@ -91,7 +87,7 @@ class ZelaiBot(interface.Bot):
         a cada uno de los faros
         """
         d=0
-        if d>0: logFun("Entro en calculaDistancias","")
+        if d>0: self.log("Entro en calculaDistancias")
         distancia={}
         xMax = len(mapa[1]);
         yMax = len(mapa);
@@ -106,9 +102,9 @@ class ZelaiBot(interface.Bot):
 
         for faro in range(len(lighthouses)):
             distancia[faro] = self.calculaDistancia(lighthouses[faro],distancia[faro])
-            if d>1: logFun("d","Distancia["+str(faro)+"] + \n" + str(distancia[faro]))
+            if d>1: self.log("Distancia["+str(faro)+"] + \n" + str(distancia[faro]))
 
-        if d>0: logFun("Salgo de calculaDistancias","")
+        if d>0: self.log("Salgo de calculaDistancias")
         return distancia
 
 
@@ -129,7 +125,6 @@ class ZelaiBot(interface.Bot):
             return random(len(self.lighthouses))
         for faro in xrange(len(self.distancias)):
             if d>2: self.log("XXXX player_num" + str(self.player_num))
-            # XXXXXXXXXXXX Estoy aquí, la siguiente linea no pilla el owner, es para cuando funcione poner en el if de abajo y comparar con el owner
             if d>2: self.log("XXXX faro.owner" + str(type(self.state['lighthouses']))) #[faro]['owner']))
             #if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] == None:
             if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] <> self.player_num and self.state['lighthouses'][faro]["energy"] < self.state["energy"] :
@@ -165,7 +160,11 @@ class ZelaiBot(interface.Bot):
         if d>1: self.log("devuelvo (xMin=" + str(xMin) + ", yMin=" + str(yMin) + ")")
         return (xMin,yMin)
 
-                
+    def error(self, message, last_move):
+            self.objetivo = self.buscafaro()
+            xDest, yDest = self.reduce()
+            return self.move(*(xDest,yDest))
+
     def play(self, state):
         """Jugar: llamado cada turno.
         Debe devolver una accion (jugada).
@@ -193,10 +192,16 @@ class ZelaiBot(interface.Bot):
                     if d>1: self.log("self.attack(state[energy])")
                     return self.attack(state["energy"])
                 else:
+                    if self.lighthouses[(cx,cy)]["owner"] == self.player_num:
+                        for dest in self.lighthouses:
+                            if (dest != (cx, cy) and
+                                self.lighthouses[dest]["have_key"] and
+                                [cx, cy] not in self.lighthouses[dest]["connections"] and
+                                self.lighthouses[dest]["owner"] == self.player_num):
+                                return self.connect(dest)
                     self.objetivo = self.buscafaro()
                     xDest,yDest = self.reduce()
             return self.move(*(xDest,yDest))
-            
         return self.move(*(-1,0))   
 
 if __name__ == "__main__":
