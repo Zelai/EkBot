@@ -53,9 +53,20 @@ class ZelaiBot(interface.Bot):
         
         if d>0: self.log("Salgo de__init__")
 
+    def logeaFaro(self,faro):
+        self.log(("faro=%d %s faro.owner %s faro.energy %d") % (
+                faro,
+                str(self.lighthouses.values()[faro]['position']),
+                self.state['lighthouses'][faro]["owner"],
+                self.state['lighthouses'][faro]["energy"]))
+
+    def logeaFaros(self):
+        for faro in range(len(self.lighthouses)):
+            self.logeaFaro(faro)
+            
     def calculaDistancia(self, faro,mapa):
         """
-        Esta función defuelve las distancias de un mapa
+        Esta función devuelve las distancias de un mapa
         a uno de los faros.
 
 
@@ -124,10 +135,14 @@ class ZelaiBot(interface.Bot):
         if self.state["energy"] == 0:
             return random(len(self.lighthouses))
         for faro in xrange(len(self.distancias)):
-            if d>2: self.log("XXXX player_num" + str(self.player_num))
-            if d>2: self.log("XXXX faro.owner" + str(type(self.state['lighthouses']))) #[faro]['owner']))
+            if d>2: self.logeaFaro(faro)
+#            if d>2: self.log("XXXX player_num "+ str(self.player_num))
+#            if d>2: self.log("XXXX faro.owner" + str(type(self.state['lighthouses']))) #[faro]['owner']))
             #if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] == None:
-            if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] <> self.player_num and self.state['lighthouses'][faro]["energy"] < self.state["energy"] :
+            if ( self.distancias[faro][y][x] < distancia_minimo and 
+                    self.state['lighthouses'][faro]["owner"] <> self.player_num and 
+                    self.state['lighthouses'][faro]["energy"] < self.state["energy"]):
+                if d>2: self.log("Entro en minimo")
                 distancia_minimo =self.distancias[faro][y][x]
                 minimo = faro
             if d>2: self.log("Bucle buscafaro: x= " + str(x) + " y= "+str(y) + " faro="+ str(faro) + " d= " + str(self.distancias[faro][y][x]) + " min=" + str(minimo) + " dmin=" + str(distancia_minimo)) 
@@ -171,11 +186,11 @@ class ZelaiBot(interface.Bot):
         Este es el método que hay que sobreescribir
         de interface.py"""
         d=0
-
         self.state = state
         cx, cy = state['position']
         self.lighthouses = dict((tuple(lh["position"]), lh)
                             for lh in state["lighthouses"])
+        self.logeaFaros()
         if d>1: self.log("self.lighthouses=" + str(self.lighthouses))
         if d>1:self.log("faro [0]:" + str(self.lighthouses.values()[0]["owner"]))
         if d>1:self.log("faro [1]:" + str(self.lighthouses.values()[1]))
