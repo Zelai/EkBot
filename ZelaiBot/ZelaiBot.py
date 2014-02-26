@@ -54,16 +54,32 @@ class ZelaiBot(interface.Bot):
         if d>0: self.log("Salgo de__init__")
 
     def logeaFaro(self,faro):
-        self.log(("faro=%d %s faro.owner %s faro.energy %d") % (
+        """ Esta función muestra el estado de un faro """
+        self.log(("faro=%2d %8s  owner %4s   energy %4d   have_key %5s    connections:%s") % (
                 faro,
                 str(self.lighthouses.values()[faro]['position']),
                 self.state['lighthouses'][faro]["owner"],
-                self.state['lighthouses'][faro]["energy"]))
+                self.state['lighthouses'][faro]["energy"],
+                str(self.state['lighthouses'][faro]["have_key"]),
+                str(self.state['lighthouses'][faro]["connections"])))
 
     def logeaFaros(self):
+        """ Esta función muestra el estado de todos los faros """
         for faro in range(len(self.lighthouses)):
             self.logeaFaro(faro)
             
+    def logeaEstado(self):
+        """ Esta función muestra el estado """
+        self.log(" XXX" + str(self.state) + "XXX")
+        self.log(("Estado: posicion %8s  energia %4d   puntos %8d vista:") %(
+            self.state['position'],
+            self.state['energy'],
+            self.state['score']))
+        for i in range(5):
+            cadena=[ "%4d" % pos for pos in self.state['view'][i]]
+            self.log("     [" + str(cadena) + "]")
+            
+
     def calculaDistancia(self, faro,mapa):
         """
         Esta función devuelve las distancias de un mapa
@@ -121,8 +137,7 @@ class ZelaiBot(interface.Bot):
 
     def buscafaro(self):
         """
-            Busca el raro más cercano
-            devuelve un entero.
+            Busca el raro más cercano devuelve un entero.
         """
         d=0
         if d>0: self.log("Entro en buscafaro")
@@ -185,13 +200,14 @@ class ZelaiBot(interface.Bot):
         Debe devolver una accion (jugada).
         Este es el método que hay que sobreescribir
         de interface.py"""
-        d=0
+        d=2
         self.state = state
         cx, cy = state['position']
         self.lighthouses = dict((tuple(lh["position"]), lh)
                             for lh in state["lighthouses"])
+        self.logeaEstado()
         self.logeaFaros()
-        if d>1: self.log("self.lighthouses=" + str(self.lighthouses))
+        if d>1: self.log("XXXXXself.lighthouses=" + str(self.lighthouses))
         if d>1:self.log("faro [0]:" + str(self.lighthouses.values()[0]["owner"]))
         if d>1:self.log("faro [1]:" + str(self.lighthouses.values()[1]))
 
