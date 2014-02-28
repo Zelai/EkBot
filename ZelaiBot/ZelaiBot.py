@@ -41,23 +41,25 @@ class ZelaiBot(interface.Bot):
  
         interface.Bot.__init__(self,init_state) 
 
-        if d>1: self.log(str(self.map))
-        if d>1: self.log("lighthouses:\n" + str(self.lighthouses));
-        
+        if d>1: self.log("self.map" +str(self.map))
+        if d>1: self.log("lighthouses:\n" + str(self.lighthouses))
         # posiciones validas map[0][0] - map[17,20]
         # modo de acceso map[y][x]
         self.distancias = self.calculaDistancias(self.lighthouses,self.map) 
-        
+        if d>2: self.log("self.distancias:\n" + str(self.distancias))
         self.estado = 0
         self.destino = 0
-        
+
+        self.busca=0
+        self.faros=[]
+
         if d>0: self.log("Salgo de__init__")
 
     def logeaFaro(self,faro):
         """ Esta función muestra el estado de un faro """
         self.log(("faro=%2d %8s  owner %4s   energy %4d   have_key %5s    connections:%s") % (
                 faro,
-                str(self.lighthouses.values()[faro]['position']),
+                str(self.state['lighthouses'][faro]['position']),
                 self.state['lighthouses'][faro]["owner"],
                 self.state['lighthouses'][faro]["energy"],
                 str(self.state['lighthouses'][faro]["have_key"]),
@@ -70,7 +72,7 @@ class ZelaiBot(interface.Bot):
             
     def logeaEstado(self):
         """ Esta función muestra el estado """
-        self.log(" XXX" + str(self.state) + "XXX")
+#        self.log(" XXX" + str(self.state) + "XXX")
         self.log(("Estado: posicion %8s  energia %4d   puntos %8d vista:") %(
             self.state['position'],
             self.state['energy'],
@@ -147,13 +149,14 @@ class ZelaiBot(interface.Bot):
         if d>1: self.log("superior=" + str(superior))
         distancia_minimo = superior
         minimo = -1
+        self.busca = self.busca + 1
+        if self.busca > 4 and self.busca % 2 == 0:
+            self.faros.pop()
+            return(self.faros[-1])
         if self.state["energy"] == 0:
             return random(len(self.lighthouses))
         for faro in xrange(len(self.distancias)):
             if d>2: self.logeaFaro(faro)
-#            if d>2: self.log("XXXX player_num "+ str(self.player_num))
-#            if d>2: self.log("XXXX faro.owner" + str(type(self.state['lighthouses']))) #[faro]['owner']))
-            #if self.distancias[faro][y][x] < distancia_minimo and self.state['lighthouses'][faro]["owner"] == None:
             if ( self.distancias[faro][y][x] < distancia_minimo and 
                     self.state['lighthouses'][faro]["owner"] <> self.player_num and 
                     self.state['lighthouses'][faro]["energy"] < self.state["energy"]):
@@ -162,6 +165,7 @@ class ZelaiBot(interface.Bot):
                 minimo = faro
             if d>2: self.log("Bucle buscafaro: x= " + str(x) + " y= "+str(y) + " faro="+ str(faro) + " d= " + str(self.distancias[faro][y][x]) + " min=" + str(minimo) + " dmin=" + str(distancia_minimo)) 
         if d>0: self.log("Salgo de buscafaro")
+        self.faros.append(minimo)
         return minimo 
 
     def reduce(self):
@@ -200,17 +204,14 @@ class ZelaiBot(interface.Bot):
         Debe devolver una accion (jugada).
         Este es el método que hay que sobreescribir
         de interface.py"""
-        d=2
+        d=0
         self.state = state
+        if d>1:self.log("self.state:\n" + str(self.state))
         cx, cy = state['position']
         self.lighthouses = dict((tuple(lh["position"]), lh)
                             for lh in state["lighthouses"])
-        self.logeaEstado()
-        self.logeaFaros()
-        if d>1: self.log("XXXXXself.lighthouses=" + str(self.lighthouses))
-        if d>1:self.log("faro [0]:" + str(self.lighthouses.values()[0]["owner"]))
-        if d>1:self.log("faro [1]:" + str(self.lighthouses.values()[1]))
-
+        if d>1: self.logeaEstado()
+        if d>1: self.logeaFaros()
         if self.estado == 0:
             self.objetivo = self.buscafaro()
             self.estado = 1
@@ -218,7 +219,6 @@ class ZelaiBot(interface.Bot):
             xDest,yDest = self.reduce()
             if xDest == 0 and yDest ==0:
                 if d>1: self.log("estoy en destino XXXX")
-#                if self.lighthouses[(cx,cy)]["owner"] <> self.player_num:
                 if self.lighthouses[(cx,cy)]["owner"] == None and state["energy"] <> 0:
                     if d>1: self.log("self.attack(state[energy])")
                     return self.attack(state["energy"])
