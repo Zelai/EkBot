@@ -15,6 +15,7 @@ class ZelaiBot(interface.Bot):
     """
     .. module::ZelaiBot
     """
+
     """Bot ZelaiBot 0.1"""
     NAME = "ZelaiBot 0.1"""
 
@@ -31,6 +32,12 @@ class ZelaiBot(interface.Bot):
 |            self.distancias [faro][y][x]
 |               una matriz por cada faro con su distancia al punto [y][x].
 
+        .. graphviz::
+
+            digraph foo{
+                "bar" -> "bo";
+            }   
+
         :meth: interface.Bot.__init__
         """
         d=0
@@ -43,6 +50,7 @@ class ZelaiBot(interface.Bot):
 
         if d>1: self.log("self.map" +str(self.map))
         if d>1: self.log("lighthouses:\n" + str(self.lighthouses))
+
         # posiciones validas map[0][0] - map[17,20]
         # modo de acceso map[y][x]
         self.distancias = self.calculaDistancias(self.lighthouses,self.map) 
